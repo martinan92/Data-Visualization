@@ -280,6 +280,7 @@ leisure_edges <- cbind(leisure_edges,Movie_Genre_weight)
 leisure_edges <- cbind(leisure_edges,Movie_weight)
 leisure_edges$total_weight <- rowSums(leisure_edges[,3:ncol(leisure_edges)])
 
+leisure_edges <-leisure_edges[leisure_edges$total_weight!=0, ] 
 leisure_key <- data
 
 head(leisure_edges)

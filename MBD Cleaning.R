@@ -284,3 +284,6 @@ leisure_key <- data
 
 head(leisure_edges)
 head(leisure_key)
+
+save(leisure_edges,file="leisure_edges.Rda")
+save(leisure_key,file="leisure_key.Rda")

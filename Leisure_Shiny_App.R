@@ -21,30 +21,42 @@ graph <- graph.data.frame(leisure_edges, vertices = leisure_key, directed=F)
 ui <- fluidPage(
   titlePanel("Leisure Network Analysis"),
   sidebarPanel( 
-    selectInput("FILTER", "select filter of interest", choices=c("Overall","Region", "Country", "Program"), 
-                selected ="Overall")),
+    selectInput("FILTER", "Select filter of interest", choices=c("Overall", "Region", "Country", 
+                "Program"), selected ="Overall"),
+    selectInput("CONNECTION", "Select connections of interest", choices=c("Overall", "Region", "Country", 
+                "Program", "Music_Genre", "Artist", "Sport_Genre", "Athlete", "Movie_Genre", "Movie")
+                , selected ="Overall")),
   visNetworkOutput("network"), 
   dataTableOutput("nodes_data_from_shiny"),
   uiOutput('dt_UI') 
 )
 
 server <- function(input, output, session) {
-  
-  #Overall graph
-  nodes <- data.frame(id = V(graph)$name, name = V(graph)$Full.name, group = V(graph)$Region, 
-                      country = V(graph)$Country.of.Birth, program = V(graph)$Academic.Program)
-  edges <- leisure_edges
-  
   changing_data <- reactive({
-    req(input$FILTER)
-    selection<-c('from','to', paste(input$FILTER, "weight", sep="_"))
+    req(input$CONNECTION)
+    edges <- leisure_edges
+    selection<-c('from','to', paste(input$CONNECTION, "weight", sep="_"))
     output_edges<-edges[,selection]
     output_edges<-output_edges[output_edges[length(output_edges)] > 0,]
   })
   
+  changing_data2 <- reactive({
+    req(input$FILTER)
+    nodes <- data.frame(id = V(graph)$name, Name = V(graph)$Full.name, Region = V(graph)$Region, 
+                        Country = V(graph)$Country.of.Birth, Program = V(graph)$Academic.Program)
+    
+    if (input$FILTER != 'Overall'){
+      nodes$group <- nodes[,c(input$FILTER)]
+    }else{
+      nodes$group <- nodes$Name
+    }
+    nodes
+  })
+  
   output$network <- renderVisNetwork({
-    visNetwork(nodes, changing_data(), height = "100%", width = "100%") %>%
+    visNetwork(changing_data2(), changing_data(), height = "100%", width = "100%") %>%
     visIgraphLayout(layout = "layout_in_circle") %>%
+    visLegend(position = "right", main = "Group") %>%
     visEvents(select = "function(nodes) {
                 Shiny.onInputChange('current_node_id', nodes.nodes);
                 ;}")

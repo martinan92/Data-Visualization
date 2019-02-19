@@ -3,26 +3,26 @@ data<-read.csv("Leisure_clean_final_raw.csv",header=TRUE,sep=",")
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
-Academic_weight = vector()
-from = vector()
-to = vector()
-
-for (first in 1:nrow(data)){
-  for (second in 1:nrow(data)){
-    condition1 <- (data[first,c('Academic.Program.1')] == data[second,c('Academic.Program.1')] &
-                     data[first,c('Academic.Program.1')] != "")
-    condition2 <- (data[first,c('Academic.Program.2')] == data[second,c('Academic.Program.1')]& 
-                     data[first,c('Academic.Program.2')] != "")
-    condition3 <- (data[first,c('Academic.Program.1')] == data[second,c('Academic.Program.2')]& 
-                     data[first,c('Academic.Program.1')] != "")
-    
-    if (first != second){
-      from <- append(from, first)
-      to <- append(to, second)
-      Academic_weight <- append(Academic_weight, sum(condition1,condition2,condition3))
-    }
-  }
-}
+# Academic_weight = vector()
+# from = vector()
+# to = vector()
+# 
+# for (first in 1:nrow(data)){
+#   for (second in 1:nrow(data)){
+#     condition1 <- (data[first,c('Academic.Program.1')] == data[second,c('Academic.Program.1')] &
+#                      data[first,c('Academic.Program.1')] != "")
+#     condition2 <- (data[first,c('Academic.Program.2')] == data[second,c('Academic.Program.1')]& 
+#                      data[first,c('Academic.Program.2')] != "")
+#     condition3 <- (data[first,c('Academic.Program.1')] == data[second,c('Academic.Program.2')]& 
+#                      data[first,c('Academic.Program.1')] != "")
+#     
+#     if (first != second){
+#       from <- append(from, first)
+#       to <- append(to, second)
+#       Academic_weight <- append(Academic_weight, sum(condition1,condition2,condition3))
+#     }
+#   }
+# }
 
 ########################################################################################################
 ########################################################################################################
@@ -35,6 +35,21 @@ for (first in 1:nrow(data)){
                     data[first,c('Country.of.Birth')] != "")
     if (first != second){
       Country_weight <- append(Country_weight, sum(condition))
+    }
+  }
+}
+
+########################################################################################################
+########################################################################################################
+########################################################################################################
+Region_weight = vector()
+
+for (first in 1:nrow(data)){
+  for (second in 1:nrow(data)){
+    condition <- (data[first,c('Region')] == data[second,c('Region')]& 
+                    data[first,c('Region')] != "")
+    if (first != second){
+      Region_weight <- append(Region_weight, sum(condition))
     }
   }
 }
@@ -270,8 +285,9 @@ for (first in 1:nrow(data)){
 
 leisure_edges <- data.frame(from)
 leisure_edges <- cbind(leisure_edges,to)
-leisure_edges <- cbind(leisure_edges,Academic_weight)
+#leisure_edges <- cbind(leisure_edges,Academic_weight)
 leisure_edges <- cbind(leisure_edges,Country_weight)
+leisure_edges <- cbind(leisure_edges,Region_weight)
 leisure_edges <- cbind(leisure_edges,Music_Genre_weight)
 leisure_edges <- cbind(leisure_edges,Artist_weight)
 leisure_edges <- cbind(leisure_edges,Sport_Genre_weight)

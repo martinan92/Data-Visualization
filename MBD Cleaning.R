@@ -3,26 +3,22 @@ data<-read.csv("Leisure_clean_final_raw.csv",header=TRUE,sep=",")
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
-# Academic_weight = vector()
-# from = vector()
-# to = vector()
-# 
-# for (first in 1:nrow(data)){
-#   for (second in 1:nrow(data)){
-#     condition1 <- (data[first,c('Academic.Program.1')] == data[second,c('Academic.Program.1')] &
-#                      data[first,c('Academic.Program.1')] != "")
-#     condition2 <- (data[first,c('Academic.Program.2')] == data[second,c('Academic.Program.1')]& 
-#                      data[first,c('Academic.Program.2')] != "")
-#     condition3 <- (data[first,c('Academic.Program.1')] == data[second,c('Academic.Program.2')]& 
-#                      data[first,c('Academic.Program.1')] != "")
-#     
-#     if (first != second){
-#       from <- append(from, first)
-#       to <- append(to, second)
-#       Academic_weight <- append(Academic_weight, sum(condition1,condition2,condition3))
-#     }
-#   }
-# }
+Academic_weight = vector()
+from = vector()
+to = vector()
+
+for (first in 1:nrow(data)){
+  for (second in 1:nrow(data)){
+    condition1 <- (data[first,c('Academic.Program')] == data[second,c('Academic.Program')] &
+                     data[first,c('Academic.Program')] != "")
+
+    if (first != second){
+      from <- append(from, first)
+      to <- append(to, second)
+      Academic_weight <- append(Academic_weight, sum(condition1))
+    }
+  }
+}
 
 ########################################################################################################
 ########################################################################################################
@@ -124,7 +120,7 @@ for (first in 1:nrow(data)){
     
     if (first != second){
       Artist_weight <- append(Artist_weight, ranking_weight + sum(condition1,condition2,condition3
-                                    ,condition4,condition5,condition6,condition7,condition8,condition9))
+                                    ,condition4,condition5,condition6,condition7,condition8,condition9) * 2)
     }
   }
 }
@@ -199,7 +195,7 @@ for (first in 1:nrow(data)){
     
     if (first != second){
       Athlete_weight <- append(Athlete_weight, ranking_weight + sum(condition1,condition2,condition3
-                                  ,condition4,condition5,condition6,condition7,condition8,condition9))
+                                  ,condition4,condition5,condition6,condition7,condition8,condition9) * 2)
     }
   }
 }
@@ -274,7 +270,7 @@ for (first in 1:nrow(data)){
     
     if (first != second){
       Movie_weight <- append(Movie_weight, ranking_weight + sum(condition1,condition2,condition3,condition4
-                                      ,condition5,condition6,condition7,condition8,condition9))
+                                      ,condition5,condition6,condition7,condition8,condition9) * 2)
     }
   }
 }
@@ -285,7 +281,7 @@ for (first in 1:nrow(data)){
 
 leisure_edges <- data.frame(from)
 leisure_edges <- cbind(leisure_edges,to)
-#leisure_edges <- cbind(leisure_edges,Academic_weight)
+leisure_edges <- cbind(leisure_edges,Academic_weight)
 leisure_edges <- cbind(leisure_edges,Country_weight)
 leisure_edges <- cbind(leisure_edges,Region_weight)
 leisure_edges <- cbind(leisure_edges,Music_Genre_weight)
@@ -294,7 +290,9 @@ leisure_edges <- cbind(leisure_edges,Sport_Genre_weight)
 leisure_edges <- cbind(leisure_edges,Athlete_weight)
 leisure_edges <- cbind(leisure_edges,Movie_Genre_weight)
 leisure_edges <- cbind(leisure_edges,Movie_weight)
-leisure_edges$total_weight <- rowSums(leisure_edges[,3:ncol(leisure_edges)])
+
+#Exclude Academic and Country for total weight
+leisure_edges$total_weight <- rowSums(leisure_edges[,5:ncol(leisure_edges)])
 
 #Remove connections of 0 aggregate weight
 leisure_edges <-leisure_edges[leisure_edges$total_weight!=0, ] 

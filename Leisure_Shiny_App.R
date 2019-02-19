@@ -16,7 +16,8 @@ load("leisure_key.Rda")
 graph <- graph.data.frame(leisure_edges, vertices = leisure_key, directed=F)
 graph <- simplify(graph)
 
-nodes <- data.frame(id = V(graph)$name, group = V(graph)$Academic.Program.1,country = V(graph)$Country.of.Birth)
+nodes <- data.frame(id = V(graph)$name, name = V(graph)$Full.name, group = V(graph)$Region, country = V(graph)$Country.of.Birth,
+                    program = V(graph)$Academic.Program)
 edges <- get.data.frame(graph, what="edges")[1:2]
 
 ############################################################################################################ 

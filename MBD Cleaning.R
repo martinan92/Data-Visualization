@@ -3,7 +3,7 @@ data<-read.csv("Leisure_clean_final_raw.csv",header=TRUE,sep=",")
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
-Academic_weight = vector()
+Program_weight = vector()
 from = vector()
 to = vector()
 
@@ -15,7 +15,7 @@ for (first in 1:nrow(data)){
     if (first != second){
       from <- append(from, first)
       to <- append(to, second)
-      Academic_weight <- append(Academic_weight, sum(condition1))
+      Program_weight <- append(Program_weight, sum(condition1))
     }
   }
 }
@@ -281,7 +281,7 @@ for (first in 1:nrow(data)){
 
 leisure_edges <- data.frame(from)
 leisure_edges <- cbind(leisure_edges,to)
-leisure_edges <- cbind(leisure_edges,Academic_weight)
+leisure_edges <- cbind(leisure_edges,Program_weight)
 leisure_edges <- cbind(leisure_edges,Country_weight)
 leisure_edges <- cbind(leisure_edges,Region_weight)
 leisure_edges <- cbind(leisure_edges,Music_Genre_weight)
@@ -292,10 +292,10 @@ leisure_edges <- cbind(leisure_edges,Movie_Genre_weight)
 leisure_edges <- cbind(leisure_edges,Movie_weight)
 
 #Exclude Academic and Country for total weight
-leisure_edges$total_weight <- rowSums(leisure_edges[,5:ncol(leisure_edges)])
+leisure_edges$Overall_weight <- rowSums(leisure_edges[,5:ncol(leisure_edges)])
 
 #Remove connections of 0 aggregate weight
-leisure_edges <-leisure_edges[leisure_edges$total_weight!=0, ] 
+leisure_edges <-leisure_edges[leisure_edges$Overall_weight!=0, ] 
 leisure_key <- data
 
 head(leisure_edges)

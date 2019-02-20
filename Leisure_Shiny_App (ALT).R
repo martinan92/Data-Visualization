@@ -18,6 +18,13 @@ graph <- graph.data.frame(leisure_edges, vertices = leisure_key, directed=F)
 nodes <- data.frame(id = V(graph)$name, Name = V(graph)$Full.name, Region = V(graph)$Region,
                     Country = V(graph)$Country.of.Birth, Program = V(graph)$Academic.Program)
 
+#Set color-encoding to region
+nodes$group <- nodes$Region
+
+#Calculates node degree for size encoding
+degree_value <- degree(graph, mode="total")
+nodes$degree <- degree_value[match(nodes$id, names(degree_value))]
+nodes$value <- nodes$degree
 
 
 ############################################################################################################ 
@@ -43,11 +50,16 @@ server <- function(input, output, session) {
     edges <- leisure_edges
     selection<-c('from','to', paste(input$CONNECTION, "weight", sep="_"))
     edges<-edges[,selection]
+    
+    #Remove connections with 0 weight
     edges<-edges[edges[length(edges)] > 0,]
+    
+    #Set thickness encoding based on edge weight
     edges$value<-edges[,length(edges)]
     edges
   })
   
+  #Update degree values based on user filter
   changing_data2 <- reactive({
     req(input$CONNECTION)
     if(input$CONNECTION != "Overall"){
@@ -95,12 +107,12 @@ server <- function(input, output, session) {
       connections <- output_edges[which(myNode$selected == output_edges$from),]
       top_connections <- connections[connections[length(connections)] == max(connections[length(connections)]),]
       connection_summary <- merge(top_connections, nodes, by.x = "to", by.y = "id", all.x = T)
-      connection_summary$value.x <- NULL
+      connection_summary$value.x <- NULL #Remove value.x column from merge
       connection_summary[,3:ncol(connection_summary)-1]
     } else{
       #Otherwise return a blank table
       setNames(data.frame(matrix(ncol = 8, nrow = 0)), 
-               c(colnames(output_edges[1]), colnames(nodes[,2:length(nodes)])))
+               c(colnames(output_edges[1]), colnames(nodes[,2:length(nodes)]-1)))
     }
   })
   

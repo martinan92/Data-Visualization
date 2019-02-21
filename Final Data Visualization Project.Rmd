@@ -7,7 +7,12 @@ output: html_notebook
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+if(!"visNetwork" %in% installed.packages()) {install.packages("visNetwork")}
+library(visNetwork)
+if(!"shiny" %in% installed.packages()) {install.packages("shiny")}
+library(shiny)
+if(!"igraph" %in% installed.packages()) {install.packages("igraph")}
+library(igraph)
 ```
 
 ## Objective
@@ -23,18 +28,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Final Shiny App
 
-```{r}
+```{r, echo = FALSE}
 ############################################# Leisure App ################################################## 
 ############################################################################################################
 ############################################################################################################ 
 ############################################################################################################ 
-
-if(!"visNetwork" %in% installed.packages()) {install.packages("visNetwork")}
-library(visNetwork)
-if(!"shiny" %in% installed.packages()) {install.packages("shiny")}
-library(shiny)
-if(!"igraph" %in% installed.packages()) {install.packages("igraph")}
-library(igraph)
 
 #Load for MBD Cleaning File
 load("leisure_edges.Rda")

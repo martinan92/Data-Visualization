@@ -77,8 +77,50 @@ This visualization will be a rich tool to help students boost their networking a
 
 ### Distribution by Gender
 
+```{r}
+if(!"waffle" %in% installed.packages()) {install.packages("waffle")}
+library(waffle)
+
+if(!"gridExtra" %in% installed.packages()) {install.packages("gridExtra")}
+library(gridExtra)
+
+if(!"grid" %in% installed.packages()) {install.packages("grid")}
+library(grid)
+
+if(!"ggplot2" %in% installed.packages()) {install.packages("ggplot2")}
+library(ggplot2)
+
+if(!"ggthemes" %in% installed.packages()) {install.packages("ggthemes")}
+library(ggthemes)
+
+if(!"ggExtra" %in% installed.packages()) {install.packages("ggExtra")}
+library(ggExtra)
+
+if(!"psych" %in% installed.packages()) {install.packages("psych")}
+library(psych)
+
+if(!"reshape2" %in% installed.packages()) {install.packages("reshape2")}
+library(reshape2)
+
+if(!"tidyr" %in% installed.packages()) {install.packages("tidyr")}
+library(tidyr)
+
+if(!"scales" %in% installed.packages()) {install.packages("scales")}
+library(scales)
+
+if(!"ggalt" %in% installed.packages()) {install.packages("ggalt")}
+library(ggalt)
+
+if(!"dplyr" %in% installed.packages()) {install.packages("dplyr")}
+library(dplyr)
+
+if(!"plyr" %in% installed.packages()) {install.packages("plyr")}
+library(plyr)
+
+library(RColorBrewer)
 ```
 
+```{r eruptions, echo=FALSE}
 df <- read.csv('/Users/falaro/Documents/Personal/01_IE/MBD/Term_2/03_DataViz/FinalAssignment/Leisure_clean_final_raw.csv', sep = ",")
 head(df)
 
@@ -119,7 +161,9 @@ ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+```
 
+```{r eruptions, echo=FALSE}
 
 joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
 joinHistM <- joinHistM[order(joinHistM$freqMpc),]
@@ -132,8 +176,11 @@ ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) 
   labs(x=NULL, y=NULL) +
   theme_tufte()
 
+```
+
 ##MOVIES
 
+```{r eruptions, echo=FALSE}
 reducedDF <- df[c(5,20,21,22)]
 split <- split(reducedDF, reducedDF$Gender)
 
@@ -169,7 +216,9 @@ ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+```
 
+```{r eruptions, echo=FALSE}
 
 joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
 joinHistM <- joinHistM[order(joinHistM$freqMpc),]
@@ -181,8 +230,10 @@ ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+```
 
 
+```{r eruptions, echo=FALSE}
 ##SPORT 
 
 reducedDF <- df[c(5,14,15,16)]
@@ -220,8 +271,9 @@ ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+```
 
-
+```{r eruptions, echo=FALSE}
 joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
 joinHistM <- joinHistM[order(joinHistM$freqMpc),]
 joinHistM$sportGenre <- factor(joinHistM$sportGenre, levels=as.character(joinHistM$sportGenre))
@@ -232,67 +284,6 @@ ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
-
-### Distribution by Geographic Region
-
-library(ggplot2)
-library(scales)
-library(tidyr)
-library(gdata)
-library(dplyr)
-
-music<-read.xls("genres.xlsx",sheet = 1,header=TRUE)
-
-data_music<- gather(music, music_type, Percent, -region)
-
-
-ggplot(data_music , aes(music_type,Percent)) + 
-  geom_bar(aes(fill = region), stat = "identity", position = "dodge")+ 
-  scale_y_continuous(labels = scales::percent)+
-  scale_y_continuous(labels = percent_format(accuracy = 2))+ 
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        axis.line = element_line(colour = "black"))+
-  labs(title="Percentage of Top 3 Music Genre among Regions")+ 
-  theme(legend.title = element_blank())+
-  xlab("")
-
-
-
-sport<-read.xls("genres.xlsx",sheet = 2,header=TRUE)
-
-data_sport<- gather(sport, sport_type, Percent, -region)
-
-ggplot(data_sport, aes(sport_type,Percent)) + 
-  geom_bar(aes(fill = region), stat = "identity", position = "dodge")+ 
-  scale_y_continuous(labels = scales::percent)+
-  scale_y_continuous(labels = percent_format(accuracy = 2))+ 
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        axis.line = element_line(colour = "black"))+
-  labs(title="Percentage of Top 3 Sport among Regions")+ 
-  theme(legend.title = element_blank())+
-  xlab("")
-
-
-
-movie<-read.xls("genres.xlsx",sheet = 3,header=TRUE)
-
-data_movie <- gather(movie, movie_type, Percent, -region)
-
-ggplot(data_movie, aes(movie_type,Percent)) + 
-  geom_bar(aes(fill = region), stat = "identity", position = "dodge")+ 
-  scale_y_continuous(labels = scales::percent)+
-  scale_y_continuous(labels = percent_format(accuracy = 2))+
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        axis.line = element_line(colour = "black"))+
-  labs(title="Percentage of Top 3 Movie Type among Regions")+ 
-  theme(legend.title = element_blank())+
-  xlab("")
 ```
 
 ## Ideation

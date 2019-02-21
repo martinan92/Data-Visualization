@@ -34,6 +34,202 @@ This visualization will be a rich tool to help students boost their networking a
 
 ### Distribution by Gender
 
+```
+if(!"waffle" %in% installed.packages()) {install.packages("waffle")}
+library(waffle)
+
+if(!"gridExtra" %in% installed.packages()) {install.packages("gridExtra")}
+library(gridExtra)
+
+if(!"grid" %in% installed.packages()) {install.packages("grid")}
+library(grid)
+
+if(!"ggplot2" %in% installed.packages()) {install.packages("ggplot2")}
+library(ggplot2)
+
+if(!"ggthemes" %in% installed.packages()) {install.packages("ggthemes")}
+library(ggthemes)
+
+if(!"ggExtra" %in% installed.packages()) {install.packages("ggExtra")}
+library(ggExtra)
+
+if(!"psych" %in% installed.packages()) {install.packages("psych")}
+library(psych)
+
+if(!"reshape2" %in% installed.packages()) {install.packages("reshape2")}
+library(reshape2)
+
+if(!"tidyr" %in% installed.packages()) {install.packages("tidyr")}
+library(tidyr)
+
+if(!"scales" %in% installed.packages()) {install.packages("scales")}
+library(scales)
+
+if(!"ggalt" %in% installed.packages()) {install.packages("ggalt")}
+library(ggalt)
+
+if(!"dplyr" %in% installed.packages()) {install.packages("dplyr")}
+library(dplyr)
+
+if(!"plyr" %in% installed.packages()) {install.packages("plyr")}
+library(plyr)
+
+library(RColorBrewer)
+
+df <- read.csv('/Users/falaro/Documents/Personal/01_IE/MBD/Term_2/03_DataViz/FinalAssignment/Leisure_clean_final_raw.csv', sep = ",")
+head(df)
+
+
+#MUSIC
+reducedDF <- df[c(5,8,9,10)]
+split <- split(reducedDF, reducedDF$Gender)
+
+female<-as.data.frame(split$F)
+genreF<-unlist(list(female$Music.Genre0,female$Music.Genre1,female$Music.Genre2))
+genreF<-genreF[genreF !=""]
+genreF<-as.data.frame(genreF)
+genreF<-count(genreF, 'genreF')
+colnames(genreF)[2]<-"freqF"
+colnames(genreF)[1]<-"musicGenre"
+genreF$freqFpc<-genreF$freqF/sum(genreF$freqF)
+
+
+male<-as.data.frame(split$M)
+genreM<-unlist(list(male$Music.Genre0,male$Music.Genre1,male$Music.Genre2))
+genreM<-genreM[genreM !=""]
+genreM<-as.data.frame(genreM)
+genreM<-count(genreM, 'genreM')
+colnames(genreM)[2]<-"freqM"
+colnames(genreM)[1]<-"musicGenre"
+genreM$freqMpc<-genreM$freqM/sum(genreM$freqM)
+
+
+joinHist <- merge(x=genreM, y=genreF, by = 'musicGenre')
+
+joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
+joinHistF <- joinHistF[order(joinHistF$freqFpc),]
+joinHistF$musicGenre <- factor(joinHistF$musicGenre, levels=as.character(joinHistF$musicGenre)) 
+
+ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+
+
+joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
+joinHistM <- joinHistM[order(joinHistM$freqMpc),]
+joinHistM$musicGenre <- factor(joinHistM$musicGenre, levels=as.character(joinHistM$musicGenre))
+
+ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+
+##MOVIES
+
+reducedDF <- df[c(5,20,21,22)]
+split <- split(reducedDF, reducedDF$Gender)
+
+female<-as.data.frame(split$F)
+genreF<-unlist(list(female$Movie.Genre0,female$Movie.Genre1,female$Movie.Genre2))
+genreF<-genreF[genreF !=""]
+genreF<-as.data.frame(genreF)
+genreF<-count(genreF, 'genreF')
+colnames(genreF)[2]<-"freqF"
+colnames(genreF)[1]<-"movieGenre"
+genreF$freqFpc<-genreF$freqF/sum(genreF$freqF)
+
+
+male<-as.data.frame(split$M)
+genreM<-unlist(list(male$Movie.Genre0,male$Movie.Genre1,male$Movie.Genre2))
+genreM<-genreM[genreM !=""]
+genreM<-as.data.frame(genreM)
+genreM<-count(genreM, 'genreM')
+colnames(genreM)[2]<-"freqM"
+colnames(genreM)[1]<-"movieGenre"
+genreM$freqMpc<-genreM$freqM/sum(genreM$freqM)
+
+
+joinHist <- merge(x=genreM, y=genreF, by = 'movieGenre')
+
+joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
+joinHistF <- joinHistF[order(joinHistF$freqFpc),]
+joinHistF$movieGenre <- factor(joinHistF$movieGenre, levels=as.character(joinHistF$movieGenre)) 
+
+ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+
+
+joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
+joinHistM <- joinHistM[order(joinHistM$freqMpc),]
+joinHistM$movieGenre <- factor(joinHistM$movieGenre, levels=as.character(joinHistM$movieGenre))
+
+ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+
+
+##SPORT 
+
+reducedDF <- df[c(5,14,15,16)]
+split <- split(reducedDF, reducedDF$Gender)
+
+female<-as.data.frame(split$F)
+genreF<-unlist(list(female$Sport0,female$Sport1,female$Sport2))
+genreF<-genreF[genreF !=""]
+genreF<-as.data.frame(genreF)
+genreF<-count(genreF, 'genreF')
+colnames(genreF)[2]<-"freqF"
+colnames(genreF)[1]<-"sportGenre"
+genreF$freqFpc<-genreF$freqF/sum(genreF$freqF)
+
+
+male<-as.data.frame(split$M)
+genreM<-unlist(list(male$Sport0,male$Sport1,male$Sport2))
+genreM<-genreM[genreM !=""]
+genreM<-as.data.frame(genreM)
+genreM<-count(genreM, 'genreM')
+colnames(genreM)[2]<-"freqM"
+colnames(genreM)[1]<-"sportGenre"
+genreM$freqMpc<-genreM$freqM/sum(genreM$freqM)
+
+
+joinHist <- merge(x=genreM, y=genreF, by = 'sportGenre')
+
+joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
+joinHistF <- joinHistF[order(joinHistF$freqFpc),]
+joinHistF$sportGenre <- factor(joinHistF$sportGenre, levels=as.character(joinHistF$sportGenre)) 
+
+ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+
+
+joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
+joinHistM <- joinHistM[order(joinHistM$freqMpc),]
+joinHistM$sportGenre <- factor(joinHistM$sportGenre, levels=as.character(joinHistM$sportGenre))
+
+ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+
 ### Distribution by Geographic Region
 
 library(ggplot2)
@@ -94,7 +290,13 @@ ggplot(data_movie, aes(movie_type,Percent)) +
   labs(title="Percentage of Top 3 Movie Type among Regions")+ 
   theme(legend.title = element_blank())+
   xlab("")
+```
 
+## Ideation
+
+```{r, out.width="0.3\\linewidth", include=TRUE, fig.align="center", fig.cap=c("your caption"), echo=FALSE}
+knitr::include_graphics("/Users/falaro/Documents/Personal/01_IE/MBD/Term_2/03_DataViz/FinalAssignment/Sketch of data visualization.pdf")
+```
 
 ## Final Shiny App
 

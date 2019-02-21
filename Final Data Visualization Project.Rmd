@@ -17,6 +17,17 @@ library(igraph)
 
 ## Objective
 
+“If you want to go fast, go alone. If you want to go far, go with others.” This African proverb is the foundation of our project IE Leisure Networking Tool. In the VUCA (volatile, uncertain, changing, ambiguous) environment we currently live in, networking has become one of the main pillars of success and our goal is to help IE students with this aspect.
+
+As we learned from our Influence and Persuasion course, to build a strong relationship with others it is important to find commonalities as initial bonds. For this reason, we have gathered data from IE students regarding Sports, Music and Film preferences. The main objective is to construct an interactive “networkviz” where students represent nodes and common preferences represent connections. Within this network we will be capable of analyzing:
+
+Close connections between students
+Total weighted connections → If two students share more than one taste, the connection is stronger.
+Weighted connections by topic
+Who is the biggest influencer for each topic → This objective will be calculated with the Degree centrality measure.
+
+This visualization will be a rich tool to help students boost their networking at IE and can serve as basis for the organization and planning of future leisure activities.
+
 ## Data Exploration
 
 ### Overall Distribution (TreeMap)

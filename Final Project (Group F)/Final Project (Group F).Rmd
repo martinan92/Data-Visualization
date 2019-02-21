@@ -1,0 +1,539 @@
+---
+title: "Final Data Visualization Project"
+author: "Group F"
+date: "2/21/2019"
+runtime: shiny
+output: html_document
+---
+
+```{r setup, include=FALSE}
+if(!"visNetwork" %in% installed.packages()) {install.packages("visNetwork")}
+library(visNetwork)
+if(!"shiny" %in% installed.packages()) {install.packages("shiny")}
+library(shiny)
+if(!"igraph" %in% installed.packages()) {install.packages("igraph")}
+library(igraph)
+if(!"waffle" %in% installed.packages()) {install.packages("waffle")}
+library(waffle)
+if(!"gridExtra" %in% installed.packages()) {install.packages("gridExtra")}
+library(gridExtra)
+if(!"grid" %in% installed.packages()) {install.packages("grid")}
+library(grid)
+if(!"ggplot2" %in% installed.packages()) {install.packages("ggplot2")}
+library(ggplot2)
+if(!"ggthemes" %in% installed.packages()) {install.packages("ggthemes")}
+library(ggthemes)
+if(!"ggExtra" %in% installed.packages()) {install.packages("ggExtra")}
+library(ggExtra)
+if(!"psych" %in% installed.packages()) {install.packages("psych")}
+library(psych)
+if(!"reshape2" %in% installed.packages()) {install.packages("reshape2")}
+library(reshape2)
+if(!"tidyr" %in% installed.packages()) {install.packages("tidyr")}
+library(tidyr)
+if(!"scales" %in% installed.packages()) {install.packages("scales")}
+library(scales)
+if(!"ggalt" %in% installed.packages()) {install.packages("ggalt")}
+library(ggalt)
+if(!"dplyr" %in% installed.packages()) {install.packages("dplyr")}
+library(dplyr)
+if(!"plyr" %in% installed.packages()) {install.packages("plyr")}
+library(plyr)
+if(!"RColorBrewer" %in% installed.packages()) {install.packages("RColorBrewer")}
+library(RColorBrewer)
+if(!"gdata" %in% installed.packages()) {install.packages("gdata")}
+library(gdata)
+if(!"treemap" %in% installed.packages()) {install.packages("treemap")}
+library(treemap)
+if(!"d3treeR" %in% installed.packages()) {install.packages("d3treeR")}
+library(d3treeR)
+```
+
+## Objective
+
+“If you want to go fast, go alone. If you want to go far, go with others.” This African proverb is the foundation of our project IE Leisure Networking Tool. In the VUCA (volatile, uncertain, changing, ambiguous) environment we currently live in, networking has become one of the main pillars of success and our goal is to help IE students with this aspect.
+
+As we learned from our Influence and Persuasion course, to build a strong relationship with others it is important to find commonalities as initial bonds. For this reason, we have gathered data from IE students regarding Sports, Music and Film preferences. The main objective is to construct an interactive “networkviz” where students represent nodes and common preferences represent connections. Within this network we will be capable of analyzing:
+
+Close connections between students
+Total weighted connections → If two students share more than one taste, the connection is stronger.
+Weighted connections by topic
+Who is the biggest influencer for each topic → This objective will be calculated with the Degree centrality measure.
+
+This visualization will be a rich tool to help students boost their networking at IE and can serve as basis for the organization and planning of future leisure activities.
+
+## Ideation
+
+```{r, out.width="0.3\\linewidth", include=TRUE, fig.align="center", echo=FALSE}
+knitr::include_graphics("Sketch_of_data_visualization.pdf")
+```
+
+## Data Exploration
+```{r, echo = FALSE}
+df <- read.csv('Leisure_clean_final_raw.csv', sep = ",")
+head(df)
+
+#MUSIC
+reducedDF <- df[c(5,8,9,10)]
+split <- split(reducedDF, reducedDF$Gender)
+
+female<-as.data.frame(split$F)
+genreF<-unlist(list(female$Music.Genre0,female$Music.Genre1,female$Music.Genre2))
+genreF<-genreF[genreF !=""]
+genreF<-as.data.frame(genreF)
+genreF<-count(genreF, 'genreF')
+colnames(genreF)[2]<-"freqF"
+colnames(genreF)[1]<-"musicGenre"
+genreF$freqFpc<-genreF$freqF/sum(genreF$freqF)
+
+male<-as.data.frame(split$M)
+genreM<-unlist(list(male$Music.Genre0,male$Music.Genre1,male$Music.Genre2))
+genreM<-genreM[genreM !=""]
+genreM<-as.data.frame(genreM)
+genreM<-count(genreM, 'genreM')
+colnames(genreM)[2]<-"freqM"
+colnames(genreM)[1]<-"musicGenre"
+genreM$freqMpc<-genreM$freqM/sum(genreM$freqM)
+
+joinHist <- merge(x=genreM, y=genreF, by = 'musicGenre')
+joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
+joinHistF <- joinHistF[order(joinHistF$freqFpc),]
+joinHistF$musicGenre <- factor(joinHistF$musicGenre, levels=as.character(joinHistF$musicGenre)) 
+
+ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+                scale_x_continuous(label=percent) + 
+                labs(x=NULL, y=NULL) +
+                theme_tufte()
+```
+
+```{r, echo = FALSE}
+joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
+joinHistM <- joinHistM[order(joinHistM$freqMpc),]
+joinHistM$musicGenre <- factor(joinHistM$musicGenre, levels=as.character(joinHistM$musicGenre))
+
+ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+```
+
+## MOVIES
+```{r, echo = FALSE}
+reducedDF <- df[c(5,20,21,22)]
+split <- split(reducedDF, reducedDF$Gender)
+
+female<-as.data.frame(split$F)
+genreF<-unlist(list(female$Movie.Genre0,female$Movie.Genre1,female$Movie.Genre2))
+genreF<-genreF[genreF !=""]
+genreF<-as.data.frame(genreF)
+genreF<-count(genreF, 'genreF')
+colnames(genreF)[2]<-"freqF"
+colnames(genreF)[1]<-"movieGenre"
+genreF$freqFpc<-genreF$freqF/sum(genreF$freqF)
+
+male<-as.data.frame(split$M)
+genreM<-unlist(list(male$Movie.Genre0,male$Movie.Genre1,male$Movie.Genre2))
+genreM<-genreM[genreM !=""]
+genreM<-as.data.frame(genreM)
+genreM<-count(genreM, 'genreM')
+colnames(genreM)[2]<-"freqM"
+colnames(genreM)[1]<-"movieGenre"
+genreM$freqMpc<-genreM$freqM/sum(genreM$freqM)
+
+joinHist <- merge(x=genreM, y=genreF, by = 'movieGenre')
+
+joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
+joinHistF <- joinHistF[order(joinHistF$freqFpc),]
+joinHistF$movieGenre <- factor(joinHistF$movieGenre, levels=as.character(joinHistF$movieGenre)) 
+
+ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+```
+
+```{r, echo = FALSE}
+joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
+joinHistM <- joinHistM[order(joinHistM$freqMpc),]
+joinHistM$movieGenre <- factor(joinHistM$movieGenre, levels=as.character(joinHistM$movieGenre))
+
+ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+```
+
+## SPORT
+```{r, echo = FALSE}
+reducedDF <- df[c(5,14,15,16)]
+split <- split(reducedDF, reducedDF$Gender)
+
+female<-as.data.frame(split$F)
+genreF<-unlist(list(female$Sport0,female$Sport1,female$Sport2))
+genreF<-genreF[genreF !=""]
+genreF<-as.data.frame(genreF)
+genreF<-count(genreF, 'genreF')
+colnames(genreF)[2]<-"freqF"
+colnames(genreF)[1]<-"sportGenre"
+genreF$freqFpc<-genreF$freqF/sum(genreF$freqF)
+
+male<-as.data.frame(split$M)
+genreM<-unlist(list(male$Sport0,male$Sport1,male$Sport2))
+genreM<-genreM[genreM !=""]
+genreM<-as.data.frame(genreM)
+genreM<-count(genreM, 'genreM')
+colnames(genreM)[2]<-"freqM"
+colnames(genreM)[1]<-"sportGenre"
+genreM$freqMpc<-genreM$freqM/sum(genreM$freqM)
+
+joinHist <- merge(x=genreM, y=genreF, by = 'sportGenre')
+joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
+joinHistF <- joinHistF[order(joinHistF$freqFpc),]
+joinHistF$sportGenre <- factor(joinHistF$sportGenre, levels=as.character(joinHistF$sportGenre)) 
+
+ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+```
+
+```{r, echo = FALSE}
+joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
+joinHistM <- joinHistM[order(joinHistM$freqMpc),]
+joinHistM$sportGenre <- factor(joinHistM$sportGenre, levels=as.character(joinHistM$sportGenre))
+
+ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
+  geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
+                dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
+  scale_x_continuous(label=percent) + 
+  labs(x=NULL, y=NULL) +
+  theme_tufte()
+```
+
+## Distribution by Geographic Region
+```{r, echo = FALSE, message = FALSE}
+music<-read.xls("genres.xlsx",sheet = 1,header=TRUE)
+data_music<- gather(music, music_type, Percent, -region)
+
+ggplot(data_music , aes(music_type,Percent)) + 
+  geom_bar(aes(fill = region), stat = "identity", position = "dodge")+ 
+  scale_y_continuous(labels = scales::percent)+
+  scale_y_continuous(labels = percent_format(accuracy = 2))+ 
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"))+
+  labs(title="Percentage of Top 3 Music Genre among Regions")+ 
+  theme(legend.title = element_blank())+
+  xlab("")
+```
+
+```{r, echo = FALSE, message = FALSE}
+sport<-read.xls("genres.xlsx",sheet = 2,header=TRUE)
+
+data_sport<- gather(sport, sport_type, Percent, -region)
+
+ggplot(data_sport, aes(sport_type,Percent)) + 
+  geom_bar(aes(fill = region), stat = "identity", position = "dodge")+ 
+  scale_y_continuous(labels = scales::percent)+
+  scale_y_continuous(labels = percent_format(accuracy = 2))+ 
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"))+
+  labs(title="Percentage of Top 3 Sport among Regions")+ 
+  theme(legend.title = element_blank())+
+  xlab("")
+```
+
+```{r, echo = FALSE, message = FALSE}
+movie<-read.xls("genres.xlsx",sheet = 3,header=TRUE)
+
+data_movie <- gather(movie, movie_type, Percent, -region)
+
+ggplot(data_movie, aes(movie_type,Percent)) + 
+  geom_bar(aes(fill = region), stat = "identity", position = "dodge")+ 
+  scale_y_continuous(labels = scales::percent)+
+  scale_y_continuous(labels = percent_format(accuracy = 2))+
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        axis.line = element_line(colour = "black"))+
+  labs(title="Percentage of Top 3 Movie Type among Regions")+ 
+  theme(legend.title = element_blank())+
+  xlab("")
+```
+
+## Overall Distribution (TreeMap)
+```{r, echo = FALSE}
+
+############################################# TreeMap App ################################################## 
+############################################################################################################
+############################################################################################################ 
+############################################################################################################ 
+
+get_frequencies <- function(data_frame,category,percentage=TRUE) {
+  if(category == 'Music') {
+    list <- unlist(list(data_frame$Music.Genre0, data_frame$Music.Genre1, data_frame$Music.Genre2))
+  }
+  else if(category == 'Movies') {
+    list <- unlist(list(data_frame$Movie.Genre0, data_frame$Movie.Genre1, data_frame$Movie.Genre2))
+  }
+  else if(category == 'Sports') {
+    list <- unlist(list(data_frame$Sport0, data_frame$Sport1, data_frame$Sport2))
+  }
+  else {
+    return("Error")
+  }
+  list <- list[list != ""]
+  list <- as.data.frame(list)
+  list <- count(list, 'list')
+  if(percentage) {
+    list$freq <- round((list$freq / sum(list$freq))*100)
+  }
+  colnames(list) <- c('name','freq')
+  list<- list[order(list$freq, decreasing = T),]
+  return(list)
+}
+
+df<-read.csv("Leisure_clean_final_raw.csv",header=TRUE,sep=",")
+regions <- c('AFRICA','EUROPE','ASIAPAC','MIDDLE EAST','NORTH AMERICA','LATIN AMERICA')
+genders <- c('M','F')
+for(r in regions) {
+  for(g in genders) {
+    nam <- paste("df", r, g, sep = "_")
+    assign(nam, df[df$Region == r & df$Gender == g,])
+  }
+}
+
+for(c in c('Music','Movies','Sports')) {
+  namm <- paste("fullList",c,sep="")
+  assign(namm, data.frame()) 
+  for (r in regions) {
+    for(g in genders) {
+      nam <- paste("df", r, g, sep = "_")
+      df_temp <- get(nam)
+      listName <- get_frequencies(df_temp,c,F)
+      listName$region <- r
+      listName$gender <- g
+      assign(namm,rbind(get(namm),listName))
+    }
+  }
+}
+
+############################################################################################################ 
+############################################################################################################ 
+############################################################################################################
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(
+   
+   # Application title
+   titlePanel("Tree Map"),
+   
+   # Sidebar with a slider input for number of bins 
+   sidebarLayout(
+      sidebarPanel(
+         selectInput("Category", "Select Category", c('Music','Movies','Sports')),
+         selectInput("Gender", "Filter on Gender", c('All','Male','Female')),
+         selectInput("Region", "Filter on Region", c('All','ASIAPAC','AFRICA','EUROPE','MIDDLE EAST','NORTH AMERICA','LATIN AMERICA')),
+         width=3
+      ),
+      
+      # Show a plot of the generated distribution
+      mainPanel(
+         d3tree3Output("treeMap",width = "110%",height="650px"),
+         width= 8
+      )
+   )
+)
+
+############################################################################################################ 
+############################################################################################################ 
+############################################################################################################
+
+server <- function(input, output) {
+   # renderD3tree3
+   output$treeMap <- renderD3tree3({
+     #toUse <- df
+     if(input$Category == 'Music') {
+       listToUse <- fullListMusic
+     }
+     else if(input$Category == 'Movies') {
+       listToUse <- fullListMovies
+     }
+     else if(input$Category == 'Sports') {
+       listToUse <- fullListSports
+     }
+     toUse <- listToUse
+     index_ <- c(colnames(toUse)[1],colnames(toUse)[3],colnames(toUse)[4])
+     if(input$Gender != 'All') {
+        gender <- input$Gender
+        toUse <- toUse[toUse$gender == substr(gender,1,1),]
+        index_ <- c(colnames(toUse)[1],colnames(toUse)[3])
+      }
+     if(input$Region != 'All') {
+       toUse <- toUse[toUse$region == input$Region,]
+       index_ <- c(colnames(toUse)[1],colnames(toUse)[4])
+     }
+     if(input$Gender != 'All' & input$Region != 'All') {
+       index_ <- c(colnames(toUse)[1])
+     } 
+      p <- treemap(toUse,index=index_,vSize=colnames(toUse)[2],fontcolor.labels = "black")
+      
+      name1 <- paste("Category:", input$Category, "| Gender:", input$Gender, "| Region:", input$Region, sep= " ")
+      d3tree3(p, rootname = name1, celltext = "name")
+   })
+}
+
+shinyApp(ui = ui, server = server, options = list(height = 800, width = 1000))
+```
+
+# Network Shiny App
+```{r,echo = FALSE}
+############################################# Leisure App ################################################## 
+############################################################################################################
+############################################################################################################ 
+############################################################################################################ 
+
+#Load for MBD Cleaning File
+load("leisure_edges.Rda")
+load("leisure_key.Rda")
+
+graph <- graph.data.frame(leisure_edges, vertices = leisure_key, directed=F)
+nodes <- data.frame(id = V(graph)$name, Name = V(graph)$Full.name, Region = V(graph)$Region,
+                    Country = V(graph)$Country.of.Birth, Program = V(graph)$Academic.Program)
+
+#Set color-encoding to region
+nodes$group <- nodes$Region
+
+#Calculates node degree for size encoding
+degree_value <- degree(graph, mode="total")
+nodes$degree <- degree_value[match(nodes$id, names(degree_value))]
+nodes$value <- nodes$degree
+
+
+############################################################################################################ 
+############################################################################################################ 
+############################################################################################################ 
+
+ui <- fluidPage(
+  titlePanel("Leisure Network Analysis"),
+  sidebarPanel( 
+    selectInput("CONNECTION", "Select connections of interest", choices=c("Overall", "Region", "Country", 
+                  "Program", "Music_Genre", "Artist", "Sport_Genre", "Athlete", "Movie_Genre", "Movie")
+                , selected ="Overall")),
+  visNetworkOutput("network"), 
+  dataTableOutput("nodes_data_from_shiny"),
+  uiOutput('dt_UI1'), 
+  uiOutput('dt_UI2')
+)
+
+server <- function(input, output, session) {
+  #Allows user to choose which connection type to analyze
+  changing_data <- reactive({
+    req(input$CONNECTION)
+    edges <- leisure_edges
+    selection<-c('from','to', paste(input$CONNECTION, "weight", sep="_"))
+    edges<-edges[,selection]
+    
+    #Remove connections with 0 weight
+    edges<-edges[edges[length(edges)] > 0,]
+    
+    #Set thickness encoding based on edge weight
+    edges$value<-edges[,length(edges)]
+    edges
+  })
+  
+  #Update degree values based on user filter
+  changing_data2 <- reactive({
+    req(input$CONNECTION)
+    if(input$CONNECTION != "Overall"){
+      graph <- graph.data.frame(changing_data(), vertices = leisure_key, directed=F)
+    } else{
+      graph <- graph.data.frame(leisure_edges, vertices = leisure_key, directed=F)
+    }  
+    
+    nodes <- data.frame(id = V(graph)$name, Name = V(graph)$Full.name, Region = V(graph)$Region,
+                        Country = V(graph)$Country.of.Birth, Program = V(graph)$Academic.Program)
+    
+    nodes$group <- nodes$Region
+    degree_value <- degree(graph, mode="total")
+    nodes$degree <- degree_value[match(nodes$id, names(degree_value))]
+    nodes$value <- nodes$degree
+    
+    nodes
+  })
+  
+  output$network <- renderVisNetwork({
+    visNetwork(changing_data2(), changing_data(), height = "100%", width = "100%") %>%
+      visOptions(highlightNearest = TRUE) %>%
+      visNodes(scaling = list(min = 10, max = 50)) %>%
+      visEdges(scaling = list(min = 1, max = 20)) %>%
+      visIgraphLayout(layout = "layout_in_circle") %>%
+      visLegend(position = "right", main = "Group") %>%
+      visEvents(select = "function(nodes) {
+                Shiny.onInputChange('current_node_id', nodes.nodes);
+                ;}")
+  })
+  
+  myNode <- reactiveValues(selected = '')
+  
+  observeEvent(input$current_node_id, {
+    myNode$selected <<- input$current_node_id
+  })
+  
+  #Creates table of summary info of selected node
+  changing_data3 <- reactive({
+    req(input$CONNECTION)
+    output_edges <- changing_data()
+    
+    #Check if node has any connections on given filter
+    if (sum(myNode$selected == output_edges$from) > 0){
+      connections <- output_edges[which(myNode$selected == output_edges$from),]
+      top_connections <- connections[connections[length(connections)] == max(connections[length(connections)]),]
+      connection_summary <- merge(top_connections, nodes, by.x = "to", by.y = "id", all.x = T)
+      connection_summary$value.x <- NULL #Remove value.x column from merge
+      connection_summary[,3:ncol(connection_summary)-1]
+    } else{
+      #Otherwise return a blank table
+      setNames(data.frame(matrix(ncol = 8, nrow = 0)), 
+               c(colnames(output_edges[1]), colnames(nodes[,2:length(nodes)]-1)))
+    }
+  })
+  
+  #Prints the node summary table
+  output$table1 <- renderDataTable({
+    nodes[which(myNode$selected == nodes$id), 1:length(nodes)-1]
+  })
+  
+  #Prints the connection summary table
+  output$table2 <- renderDataTable({
+    changing_data3()
+  })
+  
+  output$dt_UI1 <- renderUI({
+    if(nrow(nodes[which(myNode$selected == nodes$id),])!=0){
+      dataTableOutput('table1')
+    } else{}
+  })
+  
+  output$dt_UI2 <- renderUI({
+    if(nrow(nodes[which(myNode$selected == nodes$id),])!=0){
+      dataTableOutput('table2')
+    } else{}
+  })
+}
+
+shiny::shinyApp(ui = ui, server = server, options = list(height = 600, width = 1000))
+```

@@ -7,8 +7,6 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-#Uncomment if needed
-#devtools::install_github("timelyportfolio/d3treeR")
 if(!"visNetwork" %in% installed.packages()) {install.packages("visNetwork")}
 library(visNetwork)
 if(!"shiny" %in% installed.packages()) {install.packages("shiny")}
@@ -71,7 +69,7 @@ knitr::include_graphics("Sketch_of_data_visualization.pdf")
 ```
 
 ## Data Exploration
-```{r, echo = FALSE}
+```{r, fig.align='center', echo = FALSE}
 df <- read.csv('Leisure_clean_final_raw.csv', sep = ",")
 head(df)
 
@@ -102,29 +100,29 @@ joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
 joinHistF <- joinHistF[order(joinHistF$freqFpc),]
 joinHistF$musicGenre <- factor(joinHistF$musicGenre, levels=as.character(joinHistF$musicGenre)) 
 
-ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
+g1 <- ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
   geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
                 dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
                 scale_x_continuous(label=percent) + 
                 labs(x=NULL, y=NULL) +
                 theme_tufte()
-```
 
-```{r, echo = FALSE}
 joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
 joinHistM <- joinHistM[order(joinHistM$freqMpc),]
 joinHistM$musicGenre <- factor(joinHistM$musicGenre, levels=as.character(joinHistM$musicGenre))
 
-ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
+g2 <- ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=musicGenre, group=musicGenre)) + 
   geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
                 dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+
+grid.arrange(g1,g2, ncol=2)
 ```
 
 ## MOVIES
-```{r, echo = FALSE}
+```{r, fig.align='center', echo = FALSE}
 reducedDF <- df[c(5,20,21,22)]
 split <- split(reducedDF, reducedDF$Gender)
 
@@ -152,29 +150,29 @@ joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
 joinHistF <- joinHistF[order(joinHistF$freqFpc),]
 joinHistF$movieGenre <- factor(joinHistF$movieGenre, levels=as.character(joinHistF$movieGenre)) 
 
-ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
+g1 <- ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
   geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
                 dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
-```
 
-```{r, echo = FALSE}
 joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
 joinHistM <- joinHistM[order(joinHistM$freqMpc),]
 joinHistM$movieGenre <- factor(joinHistM$movieGenre, levels=as.character(joinHistM$movieGenre))
 
-ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
+g2 <- ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=movieGenre, group=movieGenre)) + 
   geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
                 dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+
+grid.arrange(g1,g2, ncol=2)
 ```
 
 ## SPORT
-```{r, echo = FALSE}
+```{r, fig.align='center', echo = FALSE}
 reducedDF <- df[c(5,14,15,16)]
 split <- split(reducedDF, reducedDF$Gender)
 
@@ -201,25 +199,25 @@ joinHistF<-joinHist[joinHist$freqFpc > joinHist$freqMpc,]
 joinHistF <- joinHistF[order(joinHistF$freqFpc),]
 joinHistF$sportGenre <- factor(joinHistF$sportGenre, levels=as.character(joinHistF$sportGenre)) 
 
-ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
+g1 <- ggplot(joinHistF, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
   geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
                 dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
-```
 
-```{r, echo = FALSE}
 joinHistM<-joinHist[joinHist$freqMpc > joinHist$freqFpc,]
 joinHistM <- joinHistM[order(joinHistM$freqMpc),]
 joinHistM$sportGenre <- factor(joinHistM$sportGenre, levels=as.character(joinHistM$sportGenre))
 
-ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
+g2 <- ggplot(joinHistM, aes(x=freqMpc, xend=freqFpc, y=sportGenre, group=sportGenre)) + 
   geom_dumbbell(colour="black", size=0.5, colour_x="steelblue", size_x = 3, size_xend = 3, colour_xend="deeppink",
                 dot_guide=TRUE, dot_guide_size=0.5, dot_guide_colour = "grey") + 
   scale_x_continuous(label=percent) + 
   labs(x=NULL, y=NULL) +
   theme_tufte()
+
+grid.arrange(g1,g2, ncol=2)
 ```
 
 ## Distribution by Geographic Region
@@ -238,9 +236,7 @@ ggplot(data_music , aes(music_type,Percent)) +
   labs(title="Percentage of Top 3 Music Genre among Regions")+ 
   theme(legend.title = element_blank())+
   xlab("")
-```
 
-```{r, echo = FALSE, message = FALSE}
 sport<-read.xls("genres.xlsx",sheet = 2,header=TRUE)
 
 data_sport<- gather(sport, sport_type, Percent, -region)
@@ -253,12 +249,10 @@ ggplot(data_sport, aes(sport_type,Percent)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(), 
         axis.line = element_line(colour = "black"))+
-  labs(title="Percentage of Top 3 Sport among Regions")+ 
+  labs(title="Percentage of Top 3 Sports among Regions")+ 
   theme(legend.title = element_blank())+
   xlab("")
-```
 
-```{r, echo = FALSE, message = FALSE}
 movie<-read.xls("genres.xlsx",sheet = 3,header=TRUE)
 
 data_movie <- gather(movie, movie_type, Percent, -region)
@@ -274,6 +268,7 @@ ggplot(data_movie, aes(movie_type,Percent)) +
   labs(title="Percentage of Top 3 Movie Type among Regions")+ 
   theme(legend.title = element_blank())+
   xlab("")
+
 ```
 
 ## Overall Distribution (TreeMap)

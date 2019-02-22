@@ -45,8 +45,13 @@ if(!"gdata" %in% installed.packages()) {install.packages("gdata")}
 library(gdata)
 if(!"treemap" %in% installed.packages()) {install.packages("treemap")}
 library(treemap)
+if(!"devtools" %in% installed.packages()) {install.packages("devtools")}
+library(devtools)
 if(!"d3treeR" %in% installed.packages()) {install.packages("d3treeR")}
+# {devtools::install_github("timelyportfolio/d3treeR")}
 library(d3treeR)
+if(!"rsconnect" %in% installed.packages()) {install.packages("rsconnect")}
+library(rsconnect)
 ```
 
 ## Objective
@@ -63,17 +68,17 @@ Who is the biggest influencer for each topic → This objective will be calculat
 This visualization will be a rich tool to help students boost their networking at IE and can serve as basis for the organization and planning of future leisure activities.
 
 ## Ideation
-
-```{r, out.width="0.3\\linewidth", include=TRUE, fig.align="center", echo=FALSE}
-knitr::include_graphics("Sketch_of_data_visualization.pdf")
-```
+![](/Users/andrewmartinez/Documents/MBD/Data Visualization/Final Project/Final Project (Group F)/Sketch_of_data_visualization.jpg)
 
 ## Data Exploration
 ```{r, fig.align='center', echo = FALSE}
 df <- read.csv('Leisure_clean_final_raw.csv', sep = ",")
 head(df)
+```
 
-#MUSIC
+## MUSIC
+```{r, fig.align='center', echo = FALSE}
+
 reducedDF <- df[c(5,8,9,10)]
 split <- split(reducedDF, reducedDF$Gender)
 
@@ -273,7 +278,6 @@ ggplot(data_movie, aes(movie_type,Percent)) +
 
 ## Overall Distribution (TreeMap)
 ```{r, echo = FALSE}
-
 ############################################# TreeMap App ################################################## 
 ############################################################################################################
 ############################################################################################################ 
